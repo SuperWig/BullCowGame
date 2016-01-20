@@ -14,6 +14,14 @@ int FBullsAndCows::GetHiddenWordLength() const { return HiddenWord.size(); }
 int FBullsAndCows::GetMaxGuesses() const { return MaxGuesses; }
 EDifficulty FBullsAndCows::GetCurrentDifficulty() const { return CurrentDifficulty; }
 
+FBullsAndCows::FBullsAndCows()
+{
+	CurrentDifficulty = EDifficulty::Easy;
+	CurrentWordList = EWordList::Medium;
+	//Make sure to populate the wordlist
+	WordList = GetWordList("ShortList.txt");
+}
+
 //Generates a random number within the bounds of ListSize
 int FBullsAndCows::GenerateRandomNumber(size_t ListSize) const
 {
@@ -23,13 +31,7 @@ int FBullsAndCows::GenerateRandomNumber(size_t ListSize) const
 	return dist(gen);
 }
 
-FBullsAndCows::FBullsAndCows()
-{
-	CurrentDifficulty = EDifficulty::Easy;
-	CurrentWordList = EWordList::Medium;
-	//Make sure to populate the wordlist
-	WordList = GetWordList("ShortList.txt");
-}
+
 
 void FBullsAndCows::SetWordList(EWordList WordListLength)
 {
@@ -81,6 +83,30 @@ int FBullsAndCows::CalculateMaxGuessess() const
 	//WordLength ^ 1.3 * the difficulty multiplier; rounded
 	//Probably needs tweaking
 	return std::round(std::pow(GetHiddenWordLength(), 1.3)*Multiplier);
+}
+
+int FBullsAndCows::CalculateScore() const
+{
+	return CalculateScore(GetMaxGuesses());
+}
+
+int FBullsAndCows::CalculateScore(int CurrentTry) const
+{
+	auto Difficulty{ GetCurrentDifficulty() };
+	double Multiplier{ 0 };
+	switch (Difficulty)
+	{
+	case EDifficulty::Easy:
+		Multiplier = M_EASY;
+		break;
+	case EDifficulty::Normal:
+		Multiplier = M_NORMAL;
+		break;
+	case EDifficulty::Hard:
+		Multiplier = M_HARD;
+		break;
+	}
+	return std::round(GetHiddenWordLength() / Multiplier) + (MaxGuesses - CurrentTry);
 }
 
 bool FBullsAndCows::IsIsogram(const FString& Word) const

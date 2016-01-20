@@ -21,7 +21,8 @@ public:
 	FString GetHiddenWord() const;
 	int GetHiddenWordLength() const;
 	int GetMaxGuesses() const;
-	int CalculateMaxGuessess() const;
+	int CalculateScore() const; //TODO move all score handling in class
+	int CalculateScore(int CurrentTry) const;
 	EDifficulty GetCurrentDifficulty() const;
 	EValidity IsValidGuess(const FString& Guess);
 	std::pair<int, int> GetResults(const FString& Guess) const;
@@ -31,15 +32,16 @@ private:
 	TArray<FString> GetWordList(const FString& FileName);
 	int GenerateRandomNumber(size_t ListSize) const;
 	bool IsIsogram(const FString& Word) const;
+	int CalculateMaxGuessess() const;
 
 	//most likely not balanced in the slightest
 	static constexpr double M_EASY{ 1.3 };
-	static constexpr double M_NORMAL{ 1 };
+	static constexpr double M_NORMAL{ 1.0 };
 	static constexpr double M_HARD{ 0.7 };
 
 	EDifficulty CurrentDifficulty;
 	EWordList CurrentWordList;
 	FString HiddenWord;
 	TArray<FString> WordList;
-	int MaxGuesses;
+	int MaxGuesses{ 0 };
 };

@@ -6,7 +6,7 @@
 
 using FText = std::string;
 
-void PlayGame();
+void PlayGame(int& Streak, int& Score);
 EWordList GetWordList();
 EDifficulty GetDifficulty();
 FText GetInput();
@@ -32,19 +32,23 @@ int main()
 	std::cout << "Bulls mean you have a correct letter in the correct place.\n";
 	std::cout << "Cows mean you have a correct letter in the wrong place.\n";
 	std::cout << "Got it? Okay, lets play!\n\n";
+	int Streak{ 0 };
+	int Score{ 0 };
 	do
-		PlayGame();
+		PlayGame(Streak, Score);
 	while (IsPlayingAgain());
 	return 0;
 }
 
 
-void PlayGame()
+void PlayGame(int& Streak, int& Score)
 {
 	BullCowGame.SetWordList(GetWordList());
 	BullCowGame.SetGameDifficulty(GetDifficulty());
 
 	int MaxGuesses{ BullCowGame.GetMaxGuesses() };
+	std::cout << "Your win streak : " << Streak << "\n";
+	std::cout << "Your score: " << Score << "\n";
 	std::cout << "You have to guess a " << BullCowGame.GetHiddenWordLength() << " letter word.\n";
 	std::cout << "You have " << MaxGuesses << " guesses to guess the word.\n\n";
 	for (int CurrentTry = 0; CurrentTry < MaxGuesses; ++CurrentTry)
@@ -52,6 +56,8 @@ void PlayGame()
 		FText Guess{ GetValidGuess() };
 		if (Guess == BullCowGame.GetHiddenWord())
 		{
+			++Streak;
+			Score += BullCowGame.CalculateScore(CurrentTry);
 			std::cout << "You got it!" << std::endl;
 			return;
 		}
@@ -61,6 +67,8 @@ void PlayGame()
 	}
 	std::cout << "Sadly you failed to guess the word. Better luck next time.\nThe word was ";
 	std::cout << BullCowGame.GetHiddenWord() << "\n\n";
+	Streak = 0;
+	Score -= BullCowGame.CalculateScore();
 }
 
 EWordList GetWordList()
