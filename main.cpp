@@ -1,7 +1,7 @@
-#include "BullsAndCows.h"
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include "FBullsAndCows.h"
 
 
 using FText = std::string;
