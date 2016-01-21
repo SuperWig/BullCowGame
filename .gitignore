@@ -24,3 +24,4 @@ Thumbs.db
 *.vcxproj
 *.filters
 Debug/
+Release/

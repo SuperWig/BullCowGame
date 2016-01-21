@@ -31,8 +31,6 @@ int FBullsAndCows::GenerateRandomNumber(size_t ListSize) const
 	return dist(gen);
 }
 
-
-
 void FBullsAndCows::SetWordList(EWordList WordListLength)
 {
 	//dont repopulate the wordlist if the selected wordlist is the same as the current one
@@ -106,7 +104,8 @@ int FBullsAndCows::CalculateScore(int CurrentTry) const
 		Multiplier = M_HARD;
 		break;
 	}
-	return std::round(GetHiddenWordLength() / Multiplier) + (MaxGuesses - CurrentTry);
+	int Base{ GetHiddenWordLength() + (MaxGuesses - CurrentTry) };
+	return std::round(Base / Multiplier);
 }
 
 bool FBullsAndCows::IsIsogram(const FString& Word) const

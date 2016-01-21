@@ -3,7 +3,6 @@
 #include <string>
 #include "FBullsAndCows.h"
 
-
 using FText = std::string;
 
 void PlayGame(int& Streak, int& Score);
