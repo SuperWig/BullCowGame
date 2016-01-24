@@ -76,13 +76,10 @@ EWordList GetWordList()
 	std::cout << "1. Short\n2. Medium\n3. Long\n(Pick a number)" << std::endl;
 	int input{ GetChoice() };
 	switch (input)
-	{
-	case 1:
-		return EWordList::Short;
-	case 2:
-		return EWordList::Medium;
-	case 3:
-		return EWordList::Long;
+	{	
+		case 1:		return EWordList::Short;
+		case 2:		return EWordList::Medium;
+		case 3:		return EWordList::Long;
 	}
 	return EWordList::Medium;
 }
@@ -94,12 +91,9 @@ EDifficulty GetDifficulty()
 	int input{ GetChoice() };
 	switch (input)
 	{
-	case 1:
-		return EDifficulty::Easy;
-	case 2:
-		return EDifficulty::Normal;
-	case 3:
-		return EDifficulty::Hard;
+		case 1:		return EDifficulty::Easy;
+		case 2:		return EDifficulty::Normal;
+		case 3:		return EDifficulty::Hard;
 	default:
 		return EDifficulty::Normal;
 	}

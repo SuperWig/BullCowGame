@@ -1,16 +1,21 @@
 #pragma once
+#include <map>
+#include <random>
 #include <string>
 #include <vector>
 
 #define TArray std::vector
+#define TMap std::map
 using FString = std::string;
 
 enum class EDifficulty { Easy, Normal, Hard };
 enum class EWordList { Short, Medium, Long };
 enum class EValidity { Invalid, NotIsogram, IncorrectSize, OK};
 
+
 class FBullsAndCows
 {
+	std::mt19937 gen{ std::random_device{ }() };
 public:
 	FBullsAndCows();
 
@@ -27,17 +32,16 @@ public:
 	EValidity IsValidGuess(const FString& Guess);
 	std::pair<int, int> GetResults(const FString& Guess) const;
 	std::pair<FString, FString> GetEasyResults(const FString& Guess) const;
-
 private:
-	TArray<FString> GetWordList(const FString& FileName);
-	int GenerateRandomNumber(size_t ListSize) const;
+	TArray<FString> GetWordList(const std::pair<int,int> limits);
+	int GenerateRandomNumber(size_t ListSize);
 	bool IsIsogram(const FString& Word) const;
 	int CalculateMaxGuessess() const;
 
-	//most likely not balanced in the slightest
-	static constexpr double M_EASY{ 1.3 };
-	static constexpr double M_NORMAL{ 1.0 };
-	static constexpr double M_HARD{ 0.7 };
+	const TMap<const EDifficulty,const double> MultiplierMap
+	{ {EDifficulty::Easy, 1.3},{EDifficulty::Normal, 1.0},{EDifficulty::Hard, 0.7} };
+	const TMap<const EWordList, std::pair<int, int>> LengthMap
+	{ {EWordList::Short, {3,4} }, {EWordList::Medium, {4,7}}, {EWordList::Long, {7,26}} };
 
 	EDifficulty CurrentDifficulty;
 	EWordList CurrentWordList;

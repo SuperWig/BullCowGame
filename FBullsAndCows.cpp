@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_set>
-#include <random>
 #include "FBullsAndCows.h"
 
 #define TSet std::unordered_set
@@ -18,15 +17,14 @@ FBullsAndCows::FBullsAndCows()
 {
 	CurrentDifficulty = EDifficulty::Easy;
 	CurrentWordList = EWordList::Medium;
+	auto limits{ LengthMap.at(CurrentWordList) };
 	//Make sure to populate the wordlist
-	WordList = GetWordList("ShortList.txt");
+	WordList = GetWordList(limits);
 }
 
 //Generates a random number within the bounds of ListSize
-int FBullsAndCows::GenerateRandomNumber(size_t ListSize) const
+int FBullsAndCows::GenerateRandomNumber(size_t ListSize) 
 {
-	std::random_device rd;
-	std::mt19937 gen(rd());
 	std::uniform_int_distribution<int> dist(0, ListSize - 1);
 	return dist(gen);
 }
@@ -34,25 +32,12 @@ int FBullsAndCows::GenerateRandomNumber(size_t ListSize) const
 void FBullsAndCows::SetWordList(EWordList WordListLength)
 {
 	//dont repopulate the wordlist if the selected wordlist is the same as the current one
-	switch (WordListLength)
+	if (WordListLength != CurrentWordList)
 	{
-	case EWordList::Short:
-		if (CurrentWordList != EWordList::Short)
-			WordList = GetWordList("ShortList.txt");
-		break;
-	case EWordList::Medium:
-		if (CurrentWordList != EWordList::Medium)
-			WordList = GetWordList("MediumList.txt");
-		break;
-	case EWordList::Long:
-		if (CurrentWordList != EWordList::Long)
-			WordList = GetWordList("LongList.txt");
-		break;
-	default:
-		WordList = GetWordList("MediumList.txt");
-		break;
+		//gets the upper and lower bound for the word length at the requested lengths
+		auto limits{ LengthMap.at(WordListLength) };
+		CurrentWordList = WordListLength;
 	}
-	CurrentWordList = WordListLength;
 }
 
 void FBullsAndCows::SetGameDifficulty(EDifficulty Difficulty)
@@ -64,23 +49,10 @@ void FBullsAndCows::SetGameDifficulty(EDifficulty Difficulty)
 
 int FBullsAndCows::CalculateMaxGuessess() const
 {
-	auto Difficulty{ GetCurrentDifficulty() };
-	double Multiplier{ 0 };
-	switch (Difficulty)
-	{
-	case EDifficulty::Easy:
-		Multiplier = M_EASY;
-		break;
-	case EDifficulty::Normal:
-		Multiplier = M_NORMAL;
-		break;
-	case EDifficulty::Hard:
-		Multiplier = M_HARD;
-		break;
-	}
-	//WordLength ^ 1.3 * the difficulty multiplier; rounded
-	//Probably needs tweaking
-	return std::round(std::pow(GetHiddenWordLength(), 1.3)*Multiplier);
+	//looks up the map to get the multiplier at the current difficulty
+	double Multiplier{ MultiplierMap.at(GetCurrentDifficulty())};
+	//Using Ben's scaling * multiplier; rounded -- Probably needs tweaking
+	return static_cast<int>(std::round((4.1*GetHiddenWordLength() - 9.1)*Multiplier));
 }
 
 int FBullsAndCows::CalculateScore() const
@@ -90,22 +62,11 @@ int FBullsAndCows::CalculateScore() const
 
 int FBullsAndCows::CalculateScore(int CurrentTry) const
 {
-	auto Difficulty{ GetCurrentDifficulty() };
-	double Multiplier{ 0 };
-	switch (Difficulty)
-	{
-	case EDifficulty::Easy:
-		Multiplier = M_EASY;
-		break;
-	case EDifficulty::Normal:
-		Multiplier = M_NORMAL;
-		break;
-	case EDifficulty::Hard:
-		Multiplier = M_HARD;
-		break;
-	}
+	//looks up the map to get the multiplier at the current difficulty
+	double Multiplier{ MultiplierMap.at(GetCurrentDifficulty()) };
+	//use the length + remainder of tries as a base
 	int Base{ GetHiddenWordLength() + (MaxGuesses - CurrentTry) };
-	return std::round(Base / Multiplier);
+	return static_cast<int>(std::round(Base / Multiplier));
 }
 
 bool FBullsAndCows::IsIsogram(const FString& Word) const
@@ -173,17 +134,19 @@ std::pair<FString, FString> FBullsAndCows::GetEasyResults(const FString & Guess)
 	return std::make_pair(Bulls, Cows);
 }
 
-TArray<FString> FBullsAndCows::GetWordList(const FString& FileName)
+TArray<FString> FBullsAndCows::GetWordList(const std::pair<int,int> limits)
 {
+	int LowerBound = limits.first;
+	int UpperBound = limits.second;
 	TArray<FString> List;
-	std::ifstream File(FileName);
+	std::ifstream File("isograms.txt");
 	if (File.is_open())
 	{
 		for (FString Line; std::getline(File, Line); )
 		{
 			//transform to lowercase and make sure it's an isogram
 			std::transform(Line.begin(), Line.end(), Line.begin(), tolower);
-			if(IsIsogram(Line))
+			if(IsIsogram(Line) && LowerBound <= Line.size() && Line.size() <= UpperBound)
 				List.push_back(Line);
 		}
 	}
